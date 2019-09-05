@@ -1,0 +1,92 @@
+---
+title: "Decision Tree and Random Forest"
+output: html_document
+Author: "Roshini Reddy"
+---
+
+Loading college dataset from ISLR package
+```{r}
+library(ISLR)
+```
+coverting college data into dataframe
+```{r}
+df<-College
+head(College)
+```
+Scatterplot of Grad.Rate versus Room.Board, colored by the Private column.
+```{r}
+library(ggplot2)
+print(ggplot(df, aes(x=Grad.Rate,y=Room.Board))+geom_point(aes(color=Private)))
+```
+histogram of full time undergrad students, color by Private
+```{r}
+print(ggplot(df,aes(F.Undergrad))+geom_histogram(aes(fill=Private),color='black',bins=50))
+```
+histogram of Grad.Rate colored by Private
+```{r}
+print(ggplot(df,aes(Grad.Rate))+geom_histogram(aes(fill=Private),color='black',bins=50))
+```
+colleges with a Graduation Rate of above 100%
+```{r}
+subset(df,Grad.Rate>100)
+```
+Change that college's grad rate to 100%
+```{r}
+df['Cazenovia College','Grad.Rate'] <- 100
+```
+Split data into training and testing sets 70/30
+```{r}
+library(caTools)
+
+set.seed(3)
+split<-sample.split(df$Private, SplitRatio = 0.7)
+df.train<-subset(df,split==TRUE)
+df.test<-subset(df,split==FALSE)
+```
+Building decision tree with train data
+```{r}
+library(rpart)
+
+tree<-rpart(Private~.,method='class',data=df.train)
+```
+Predicting values using the decision tree built and test data 
+```{r}
+predicted_value<- predict(tree,df.test)
+head(predicted_value)
+```
+Creating a new column to match the original private column
+```{r}
+predicted_value<- as.data.frame(predicted_value)
+predicted_value$Private <- ifelse(predicted_value$Yes >=0.5, "Yes", "No")
+```
+confusion matrix
+```{r}
+table(df.test$Private,predicted_value$Private)
+```
+plotting tree model
+```{r}
+library(rpart.plot)
+
+prp(tree)
+```
+Building Random Forest Tree
+```{r}
+library(randomForest)
+rf.model<- randomForest(Private~.,data = df.train, importance=TRUE)
+```
+Models confusion matrix
+```{r}
+rf.model$confusion
+```
+Feature importance
+```{r}
+rf.model$importance
+```
+
+Predcit values using Random Forest tree
+```{r}
+rfpredict <- predict(rf.model, df.test)
+head(rfpredict)
+```
+
+```
