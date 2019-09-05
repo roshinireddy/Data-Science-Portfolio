@@ -1,0 +1,12 @@
+name: "Tree Models"
+output_dir: "docs"
+navbar:
+  title: "Tree Models"
+  left:
+  - text: "Home"
+   href: index.html
+  - text: "Tree Models"
+   href: Tree_models.html
+output:
+  html_document:
+ theme: cosmo
